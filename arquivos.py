@@ -3,13 +3,13 @@ def converte_dados(dado, tipo):
         return int(dado)
     elif tipo == float:
         return float(dado)
+    elif tipo == str:
+        return str(dado)
     elif tipo == bool:
         if dado == 'True':
             return True
         else:
             return False
-    elif tipo == str:
-        return str(dado)
     
 def carrega_arquivo(nome_arquivo, separador, tipos):
     f = open(nome_arquivo, 'r')
