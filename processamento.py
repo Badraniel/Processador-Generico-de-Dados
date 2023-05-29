@@ -43,3 +43,6 @@ def projetar(dados, colunas):
                 linha_projetada[campo] = valor
         dados_projetados.append(linha_projetada)
     return dados_projetados
+
+def acessar_indice():
+    pass
