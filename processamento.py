@@ -44,5 +44,27 @@ def projetar(dados, colunas):
         dados_projetados.append(linha_projetada)
     return dados_projetados
 
-def acessar_indice():
-    pass
+#Criterio alcance: retorna os indices entre o primeiro e segundo índice da lista no parametro 'indice'
+#Criterio específico: retorna cada índice da lista no parametro 'indice'
+def acesso_indice(dados, indices, criterio):
+    def alcance():
+        return [localiza(dados, indice) for indice in range(indices[0], indices[1]+1)]
+    def especifico():
+        return [localiza(dados, indice) for indice in indices]
+    criterios = {'alcance':alcance,
+                 'especifico':especifico}
+    return criterios[criterio]()
+
+#Devolve os dados com uma modificação numa entrada específica
+def atualizar(dados, coluna, modificacao):
+    for registro in dados:
+        registro[coluna] = modificacao
+    return dados
+
+#Devolve os dados que têm o mesmo valor específico em determinada coluna
+def agrupar(dados, entrada, valor):
+    dados_agrupados = []
+    for registro in dados:
+        if registro[entrada] == valor:
+            dados_agrupados.append(registro)
+    return dados_agrupados
