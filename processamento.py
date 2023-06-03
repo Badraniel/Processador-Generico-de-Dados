@@ -1,68 +1,52 @@
-#Localiza uma entrada específica dentro do banco de dados
-def localiza(dados, linha):
+from logica_matematica import comparar
+
+#Localiza um registro específico na base de dados pelo índice
+def localizar(indice, dados):
     quantidade_registros = len(dados)
-    if linha < quantidade_registros:
-        return dados[linha]
+    if indice < quantidade_registros:
+        return dados[indice]
     else:
         raise IndexError('Esse registro não existe')
 
-#Realiza comparações logicas
-def comparar(v1, comparador, v2):
-    if comparador == '>':
-        return v1 > v2
-    elif comparador == '>=':
-        return v1 >= v2
-    elif comparador == '<':
-        return v1 < v2
-    elif comparador == '<=':
-        return v1 <= v2
-    elif comparador == '!=':
-        return v1 != v2
-    elif comparador == '==':
-        return v1 == v2
-
-#Devolve apenas as entradas que preenchem condições específicas
-def filtrar(dados, coluna, valor, comparacao=None):
+#Devolve os registros que satisfazem determinada condição
+def filtrar(coluna, valor, comparacao, dados):
     dados_filtrados = []
     for d in dados:
-        if not comparacao:
-            if d[coluna] == valor:
-                dados_filtrados.append(d)
-        else:
-            if comparar(d[coluna], comparacao, valor):
-                dados_filtrados.append(d)
+        if comparar(d[coluna], valor, comparacao):
+            dados_filtrados.append(d)
     return dados_filtrados
 
-#Devolve os dados apenas com as colunas requisitadas
-def projetar(dados, colunas):
+#Devolve os dados com apenas as colunas determinadas
+def projetar(colunas, dados):
     dados_projetados = []
-    for linha in dados:
+    for registro in dados:
         linha_projetada = {}
-        for campo, valor in linha.items():
-            if campo in colunas:
-                linha_projetada[campo] = valor
+        for coluna, valor in registro.items():
+            if coluna in colunas:
+                linha_projetada[coluna] = valor
         dados_projetados.append(linha_projetada)
     return dados_projetados
 
-#Criterio alcance: retorna os indices entre o primeiro e segundo índice da lista no parametro 'indice'
-#Criterio específico: retorna cada índice da lista no parametro 'indice'
-def acesso_indice(dados, indices, criterio):
+#Devolve registros buscando por índice dependendo do criterio adotado:
+#Criterio alcance: recebe uma lista com dois valores, entrega os registros nos índices de um ao outro
+#Criterio específico: recebe uma lista de índices, entrega os registros de cada índice
+def acesso_indice(indices, criterio, dados):
     def alcance():
-        return [localiza(dados, indice) for indice in range(indices[0], indices[1]+1)]
+        return [localizar(indice, dados) for indice in range(indices[0], indices[1] + 1)]
     def especifico():
-        return [localiza(dados, indice) for indice in indices]
-    criterios = {'alcance':alcance,
-                 'especifico':especifico}
+        return [localizar(indice, dados) for indice in indices]
+
+    criterios = {'alcance': alcance, 'especifico': especifico}
     return criterios[criterio]()
 
-#Devolve os dados com uma modificação numa entrada específica
+#Devolve os dados com uma modificacao em determinada coluna
 def atualizar(dados, coluna, modificacao):
     for registro in dados:
         registro[coluna] = modificacao
     return dados
 
-#Devolve um dicionário de dicionários onde as chaves são os valores de cada coluna
-def agrupar(dados, coluna):
+#Devolve os dados organizados em um dicionário que tem os items de valor semelhante agrupados sob a mesma chave
+def agrupar(coluna, dados):
     dados_agrupados = {}
     for linha in dados:
         valor_celula = linha[coluna]
@@ -71,4 +55,8 @@ def agrupar(dados, coluna):
         dados_agrupados[valor_celula].append(linha)
     return dados_agrupados
 
-
+#Cria uma lista com os índices de cada registro em ordem crescente ou decrescente, com base no valor de uma coluna
+def ordenar_indices(coluna, crescente, dados):
+    indices = list(range(len(dados)))
+    indices_ordenados = sorted(indices, key = lambda i:dados[i][coluna], reverse=crescente)
+    return indices_ordenados

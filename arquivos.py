@@ -1,46 +1,26 @@
-def converte_dados(dado, tipo):
-    if tipo == int:
-        return int(dado)
-    elif tipo == float:
-        return float(dado)
-    elif tipo == str:
-        return str(dado)
-    elif tipo == bool:
-        if dado == 'True':
-            return True
-        else:
-            return False
-
-def carrega_arquivo(nome_arquivo, separador, tipos):
-    f = open(nome_arquivo, 'r')
+#Formata um documento, devolvendo uma lista de dicionários com cada registro
+def formatar_documento(documento, separador, tipos):
+    converter = lambda dado, tipo: tipo(dado)
+    f = open(documento, 'r')
     linhas = f.readlines()
-    cabecalho = linhas[0].replace('\n','').split(separador)
+    cabecalho = linhas[0].rstrip('\n').split(separador)
     doc = []
     for linha in linhas[1:]:
         registro = {}
-        dados_linha = linha.replace('\n','').split(separador)
+        dados_linha = linha.rstrip('\n').split(separador)
         for idx, tipo in enumerate(tipos):
-            registro[cabecalho[idx]] = converte_dados(dados_linha[idx],tipo)
+            registro[cabecalho[idx]] = converter(dados_linha[idx], tipo)
         doc.append(registro)
+    f.close()
     return doc, cabecalho
 
-def salvar_arquivo(nome_arquivo, separador, dados):
-    f = open(nome_arquivo, 'w')
-    string_cabecalho = ''
+#Recebe uma lista de registros em dicionário e salva em um documento com um separador
+def salvar_documento(nome_documento, separador, dados):
+    f = open(nome_documento, 'w')
     cabecalho = list(dados[0].keys())
-    for coluna in cabecalho:
-        string_cabecalho += f'{coluna}'
-        if coluna is not cabecalho[-1]:
-            string_cabecalho += f'{separador}'
-    string_cabecalho += '\n'
+    string_cabecalho = separador.join(cabecalho) + '\n'
     f.write(string_cabecalho)
     for linha in dados:
-        linha_str = ''
-        for coluna in linha.keys():
-            linha_str += str(linha[coluna])
-            if coluna != cabecalho[-1]:
-                linha_str += separador
-        linha_str += '\n'
+        linha_str = separador.join(str(linha[coluna]) for coluna in cabecalho) + '\n'
         f.write(linha_str)
     f.close()
-

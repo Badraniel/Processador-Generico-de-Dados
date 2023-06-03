@@ -1,70 +1,89 @@
-from arquivos import carrega_arquivo, salvar_arquivo
-from processamento import localiza, filtrar, projetar, acesso_indice, atualizar, agrupar
 import random
+from arquivos import formatar_documento, salvar_documento
+from processamento import filtrar, projetar, localizar, acesso_indice, agrupar, atualizar, ordenar_indices
+from logica_matematica import somar_registros, media, contar_valores_semelhantes, comparar_valores
+arquivo, cabecalho = formatar_documento('dados/alunos.csv', ',', [str, int, str, float, float, int, float, bool])
 
-alunos, cabecalho = carrega_arquivo('dados/alunos.csv', ',', [str, int, str, float, float, int, float, bool])
+###Operações mais simples
 
-
-#Nestes exemplos, filtramos apenas os alunos da escola Pedro II
-
-
+#Neste exemplo, visualizamos apenas os registros dos alunos da escola Pedro II
 def exemplo_filtrar():
-    alunos_pedro_ii = filtrar(alunos,'escola','Pedro II','==')
-    return alunos_pedro_ii
+    alunos_pedro_ii = filtrar('escola', 'Pedro II', '==', arquivo)
+    for i in alunos_pedro_ii:
+        print(i)
 
-#Destes, filtramos apenas os que usaram monitoria
-def exemplo_filtrar_2():
-    alunos_pedro_ii = exemplo_filtrar()
-    alunos_monitoria_pedro_ii = filtrar(alunos_pedro_ii, 'monitoria',True)
-    return alunos_monitoria_pedro_ii
-#Destes, filtramos os que tiraram nota acima de 7 no primeiro semestre
+exemplo_filtrar()
+#Neste exemplo, recebemos uma base de dados apenas com o nome do aluno e se utilizou a monitoria
+def exemplo_projetar():
+    alunos_monitoria = projetar(['nome', 'monitoria'], arquivo)
+    for i in alunos_monitoria:
+        print(i)
 
-def exemplo_filtrar_3():
-    alunos_monitoria_pedro_ii = exemplo_filtrar_2()
-    alunos_monitoria_pedro_ii_n7 = filtrar(alunos_monitoria_pedro_ii, 'nota_semestre_1',7,'>')
-    return alunos_monitoria_pedro_ii_n7
-
-#Neste exemplo, usamos os dados filtrados anteriormente e acessamos apenas o nome e a note
-def exemplo_projetar_3():
-    alunos_filtrados = exemplo_filtrar()
-    projetado = projetar(alunos_filtrados,['nome','nota_semestre_1'])
-    return projetado
-
-#Neste exemplo, localizamos um aluno específico da projeção anterior
+#Neste exemplo, recebemos o primeiro aluno no registro
 def exemplo_localizar():
-    dados_projetados = exemplo_projetar_3()
-    aluno = localiza(dados_projetados, 0)
+    aluno = localizar(0, arquivo)
+    print(aluno)
 
-#Neste exemplo, criamos uma lista aleatória de alunos do Pedro II e localizamos estes alunos
-def exemplo_acesso_índice_específico():
-    dados_exemplo = exemplo_filtrar()
-    indices = [idx for idx in range(len(dados_exemplo))]
-    quantidade_especifica = random.randint(1,len(dados_exemplo))
-    indices_acessados = []
-    for i in range(0, quantidade_especifica):
-        lista = [item for item in indices if item not in indices_acessados]
-        indice_escolhido = random.choice(lista)
-        indices_acessados.append(indice_escolhido)
+
+#Neste exemplo, acessamos alguns alunos de forma aleatória pelos índices no registro
+def exemplo_acesso_indice_especifico():
+    quantidade_especifica = random.randint(1, len(arquivo))
+    indices_acessados = random.sample(range(len(arquivo)), quantidade_especifica)
     indices_acessados.sort()
-    dados_acessados = acesso_indice(dados_exemplo, indices_acessados, 'especifico')
-    return dados_acessados
+    dados_acessados = acesso_indice(indices_acessados, 'especifico', arquivo)
+    print(dados_acessados)
 
-#Neste exemplo, acessamos os índices dos ultimos 10 alunos da lista da monitoria do pedro II
+#Neste exemplo, acessamos os últimos 10 alunos registrados
 def exemplo_acesso_indice_alcance():
-    alunos_monitoria = exemplo_filtrar_3()
-    alcance = len(alunos_monitoria)-1
-    indices = [alcance-10, alcance]
-    dados_acessados = acesso_indice(alunos_monitoria, indices, 'alcance')
-    return dados_acessados
+    alcance = len(arquivo) - 1
+    indices = [alcance - 10, alcance]
+    dados_acessados = acesso_indice(indices, 'alcance', arquivo)
+    print(dados_acessados)
 
-#Neste exemplo, todos os alunos do pedroII que faltaram +20 aulas tiraram nota 0 no exame final
+#Neste exemplo, demos nota 0 para todos os alunos que faltaram mais do que 20 aulas
 def exemplo_atualizar():
-    alunos_pedro_ii = exemplo_filtrar()
-    alunos_faltosos = filtrar(alunos_pedro_ii, 'faltas', 20, '>')
-    alunos_faltosos = atualizar(alunos_faltosos, 'nota_exame', 0)
-    return alunos_faltosos
+    alunos_faltosos = filtrar('faltas', 20, '>', arquivo)
+    alunos_faltosos = atualizar(arquivo, 'nota_exame', 0)
+    print(alunos_faltosos)
 
-alunos_monitoria_pedro_ii_n7 = exemplo_filtrar_3()
-salvar_arquivo('dados/alunos_filtrados.csv',',', alunos_monitoria_pedro_ii_n7)
 
-agrupar(alunos,'pedro_ii')
+#Neste exemplo, recebemos os dados agrupados por escola
+def exemplo_agrupar():
+    escolas = agrupar('escola', arquivo)
+    for item in escolas.items():
+        print(item)
+#Neste exemplo, recebemos uma lista que representa o índice de cada aluno, em ordem de quem faltou mais
+#Selecionamos os alunos que menos faltaram
+#Projetamos os alunos e a escola
+def exemplo_ordenar():
+    registros_por_falta = ordenar_indices('faltas', False, arquivo)
+    alunos_assiduos = acesso_indice(registros_por_falta[:11], 'especifico', arquivo)
+    alunos_assiduos_projetados = projetar(['nome','escola','faltas'], alunos_assiduos)
+    print(alunos_assiduos_projetados)
+
+#Neste exemplo, selecionamos os alunos da francisto chagas,
+#depois projetamos apenas o nome e as notas
+#depois ordenamos o registro em ordem crescente baseada na nota
+#Salvamos o arquivo
+def exemplo_salvar_arquivo():
+    alunos_FC = filtrar('escola','Francisto Chagas', '==', arquivo)
+    melhores_alunos_FC_por_notas = projetar(['nome', 'nota_exame'], alunos_FC)
+    melhores_notas_alunos_FC = acesso_indice(ordenar_indices('nota_exame', True, melhores_alunos_FC_por_notas),'especifico',melhores_alunos_FC_por_notas)
+    salvar_documento('dados/notas_francisto_chagas.csv', ',',melhores_notas_alunos_FC)
+
+
+#Nestes exemplos, projetamos apenas as faltas e as notas dos alunos
+#para receber o total de faltas registradas, a média das notas, quantas provas foram zeradas
+#e quantas ficaram acima da média
+def exemplos_logica_matematica():
+    documento = projetar(['faltas','nota_exame'], arquivo)
+    numero_faltas = somar_registros('faltas', documento)
+    media_notas = media('nota_exame', documento)
+    provas_zeradas = contar_valores_semelhantes('nota_exame', 0, documento)
+    provas_acima_media = comparar_valores('nota_exame', '>=', 7, documento)
+    print(f'Numero de faltas: {numero_faltas}\n'
+          f'Média de notas: {media_notas}\n'
+          f'Provas Zeradas: {provas_zeradas}\n'
+          f'Acima da média: {provas_acima_media}')
+
+
