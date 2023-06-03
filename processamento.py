@@ -61,10 +61,14 @@ def atualizar(dados, coluna, modificacao):
         registro[coluna] = modificacao
     return dados
 
-#Devolve os dados que têm o mesmo valor específico em determinada coluna
-def agrupar(dados, entrada, valor):
-    dados_agrupados = []
-    for registro in dados:
-        if registro[entrada] == valor:
-            dados_agrupados.append(registro)
+#Devolve um dicionário de dicionários onde as chaves são os valores de cada coluna
+def agrupar(dados, coluna):
+    dados_agrupados = {}
+    for linha in dados:
+        valor_celula = linha[coluna]
+        if dados_agrupados.get(valor_celula) == None:
+            dados_agrupados[valor_celula] = []
+        dados_agrupados[valor_celula].append(linha)
     return dados_agrupados
+
+

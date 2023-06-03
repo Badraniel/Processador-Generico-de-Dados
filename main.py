@@ -1,5 +1,5 @@
-from arquivos import carrega_arquivo
-from processamento import localiza, filtrar, projetar, acesso_indice, atualizar
+from arquivos import carrega_arquivo, salvar_arquivo
+from processamento import localiza, filtrar, projetar, acesso_indice, atualizar, agrupar
 import random
 
 alunos, cabecalho = carrega_arquivo('dados/alunos.csv', ',', [str, int, str, float, float, int, float, bool])
@@ -64,3 +64,7 @@ def exemplo_atualizar():
     alunos_faltosos = atualizar(alunos_faltosos, 'nota_exame', 0)
     return alunos_faltosos
 
+alunos_monitoria_pedro_ii_n7 = exemplo_filtrar_3()
+salvar_arquivo('dados/alunos_filtrados.csv',',', alunos_monitoria_pedro_ii_n7)
+
+agrupar(alunos,'pedro_ii')
